@@ -1,5 +1,6 @@
 <template OverwriteFlag="true" DocrootFlag="true" DirectorySuffix="" TargetDirectory="<?php echo __FORM_DRAFTS__  ?>" TargetFileName="<?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName)  ?>_edit.tpl.php"/>
 <?php print("<?php\n"); ?>
+	/** @var <?php print($objTable->ClassName); ?>EditForm $this */
 	// This is the HTML template include file (.tpl.php) for the <?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName)  ?>_edit.php
 	// form DRAFT page.  Remember that this is a DRAFT.  It is MEANT to be altered/modified.
 
