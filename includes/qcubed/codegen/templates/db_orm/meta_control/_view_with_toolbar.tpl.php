@@ -25,6 +25,7 @@
 			}
 			$this->AutoRenderChildren = true;
 			$this->blnShowPk = $blnShowPk;
+			$this->CssClass = '<?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName) ?>_view_with_toolbar view_with_toolbar';
 
 			if ($obj<?php echo $objTable->ClassName ?>Ref) {
 				$this->pnlToolbar = new <?php echo $objTable->ClassName ?>Toolbar($this, $obj<?php echo $objTable->ClassName ?>Ref, $blnNew, $blnEdit, $blnDelete);

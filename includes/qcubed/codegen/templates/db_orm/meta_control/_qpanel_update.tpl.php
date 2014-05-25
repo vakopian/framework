@@ -72,7 +72,7 @@
 			}
 
 			$this->strTemplate = __META_CONTROLS__ . '/<?php echo $objTable->ClassName  ?>UpdatePanel.tpl.php';
-			$this->CssClass = 'ui-widget update_panel';
+			$this->CssClass = 'ui-widget <?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName) ?>_update_panel update_panel';
 
 			$this->mct<?php echo $objTable->ClassName  ?> = <?php echo $objTable->ClassName  ?>MetaControl::From($this, $obj<?php echo $objTable->ClassName ?>Ref);
 

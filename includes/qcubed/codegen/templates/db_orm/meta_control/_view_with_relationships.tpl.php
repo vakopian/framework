@@ -66,6 +66,7 @@
 				throw $objExc;
 			}
 			$this->AutoRenderChildren = true;
+			$this->CssClass = '<?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName) ?>_view_with_relationships view_with_relationships';
 			$this->Reload($obj<?php echo $objTable->ClassName ?>);
 		}
 

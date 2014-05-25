@@ -69,7 +69,7 @@
 			$this->obj<?php echo $objTable->ClassName ?>Ref = $obj<?php echo $objTable->ClassName ?>Ref;
 
 			$this->AutoRenderChildren = true;
-			$this->CssClass = 'toolbar ui-widget-header ui-corner-all';
+			$this->CssClass = '<?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName) ?>_toolbar toolbar ui-widget-header ui-corner-all';
 			$this->lblToolbar = new QLabel($this);
 			$this->lblToolbar->CssClass = 'toolbar_lbl';
 			$this->lblToolbar->Text = $this->getLabel();

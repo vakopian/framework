@@ -42,6 +42,7 @@
 			}
 			$this->AutoRenderChildren = true;
 			$this->UseWrapper = false;
+			$this->CssClass = '<?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName) ?>_popup popup';
 
 			$this->dlgPopup = new QDialog($this);
 			$this->dlgPopup->Height = 'auto';

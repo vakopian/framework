@@ -19,6 +19,7 @@
 				throw $objExc;
 			}
 			$this->UseAjax = true;
+			$this->CssClass = '<?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName) ?>_data_table data_table';
 			$this->Processing = true;
 			$this->PaginationType = 'full_numbers';
 			$this->Retrieve = true;

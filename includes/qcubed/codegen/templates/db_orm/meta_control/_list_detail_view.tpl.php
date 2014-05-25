@@ -28,7 +28,7 @@
 			}
 
 			$this->AutoRenderChildren = true;
-			$this->CssClass = "list_detail";
+			$this->CssClass = "<?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName) ?>_list_detail list_detail";
 
 			$this->pnlSearch = new <?php echo $objTable->ClassName ?>SearchPanel($this);
 			$this->pnlSearch->SearchCallback = new QMethodCallback($this, 'searchCallback');

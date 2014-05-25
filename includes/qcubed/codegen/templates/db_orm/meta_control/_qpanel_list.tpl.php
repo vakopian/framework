@@ -56,6 +56,8 @@
 				throw $objExc;
 			}
 
+			$this->CssClass = '<?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName) ?>_list_panel list_panel';
+
 			// Record Method Callbacks
 			$this->strSetEditPanelMethod = $strSetEditPanelMethod;
 			$this->strCloseEditPanelMethod = $strCloseEditPanelMethod;

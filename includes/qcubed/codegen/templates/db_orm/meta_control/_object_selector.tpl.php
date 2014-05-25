@@ -54,7 +54,7 @@
 
 			$this->AutoRenderChildren = true;
 			$this->UseWrapper = false;
-			$this->CssClass = "object_selector";
+			$this->CssClass = "<?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName) ?>_object_selector object_selector";
 
 			$this->txtAutocomplete = new QAutocomplete($this);
 			$this->txtAutocomplete->CssClass = 'ui-autocomplete-input ui-corner-all';

@@ -42,7 +42,7 @@
 			}
 
 			$this->strTemplate = __META_CONTROLS__ . '/<?php echo $objTable->ClassName  ?>SearchPanel.tpl.php';
-			$this->CssClass = 'ui-widget search_panel';
+			$this->CssClass = 'ui-widget <?php echo QConvertNotation::UnderscoreFromCamelCase($objTable->ClassName) ?>_search_panel search_panel';
 
 <?php foreach ($objTable->ColumnArray as $objColumn) { ?>
 <?php if (!$objColumn->Reference) { ?>
