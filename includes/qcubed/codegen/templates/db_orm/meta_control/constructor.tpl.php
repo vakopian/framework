@@ -91,10 +91,10 @@
 		}
 
 		/**
-		 * Static Helper Method to Create using a reference to the <?php echo $objTable->ClassName ?> object
+		 * Static Helper Method to Create <?php echo $objTable->ClassName  ?>MetaControl using a reference to the <?php echo $objTable->ClassName ?> object
 		 *
 		 * @param QForm|QControl $objParentObject QForm or QPanel which will be using this <?php echo $objTable->ClassName  ?>MetaControl
-		 * @param mixed $obj<?php echo $objTable->ClassName ?>Ref reference to the <?php echo $objTable->ClassName ?> object, could be the metacontrol, the object itself, or anything that can be used to load the object
+		 * @param int|<?php echo $objTable->ClassName  ?>MetaControl|<?php echo $objTable->ClassName  ?> $obj<?php echo $objTable->ClassName ?>Ref reference to the <?php echo $objTable->ClassName ?> object
 		 * @param int|QMetaControlCreateType $intCreateType rules governing <?php echo $objTable->ClassName  ?> object creation - defaults to CreateOrEdit
 		 * @throws QCallerException
 		 * @return <?php echo $objTable->ClassName  ?>MetaControl
@@ -118,7 +118,7 @@
 		 * Static Helper Method to Create using a reference to the <?php echo $objTable->ClassName ?> object
 		 *
 		 * @param QForm|QControl $objParentObject QForm or QPanel which will be using this <?php echo $objTable->ClassName  ?>MetaControl
-		 * @param mixed $obj<?php echo $objTable->ClassName ?>Ref reference to the <?php echo $objTable->ClassName ?> object, could be the metacontrol, the object itself, or anything that can be used to load the object
+		 * @param int|<?php echo $objTable->ClassName  ?>MetaControl|<?php echo $objTable->ClassName  ?> $obj<?php echo $objTable->ClassName ?>Ref reference to the <?php echo $objTable->ClassName ?> object
 		 * @return boolean
 		 */
 		public function Matches($objParentObject, $obj<?php echo $objTable->ClassName ?>Ref) {
