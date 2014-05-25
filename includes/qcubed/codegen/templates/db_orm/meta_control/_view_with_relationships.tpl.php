@@ -15,6 +15,7 @@
 
 	/**
 	 * @property-read <?php echo $objTable->ClassName ?>Toolbar $Toolbar
+	 * @property-read QControl $Container
 	 * @property-read <?php echo $objTable->ClassName ?>ViewWithToolbar $MainView
 	 * @property-read <?php echo $objTable->ClassName ?>ViewWithToolbar $<?php echo $objTable->ClassName ?>View
 <?php
@@ -32,8 +33,10 @@
 	class <?php echo $objTable->ClassName ?>ViewWithRelationshipsGen extends QPanel {
 		/** @var <?php echo $objTable->ClassName ?>ViewWithToolbar */
 		protected $pnlMainView;
-		/** @var QTabs */
-		protected $tabs;
+		/** @var QControl */
+		protected $ctlContainer;
+		/** @var string[] */
+		protected $strSubControlNames;
 <?php
 	if ($objTable->ColumnArray) foreach ($objTable->ColumnArray as $objColumn) {
 		if ($objColumn->Reference && !$objColumn->Reference->IsType) {
@@ -42,14 +45,19 @@
 ?>
 		/** @var <?php echo $objReferencedTable->ClassName ?>ViewWithToolbar */
 		protected $pnl<?php echo $objReference->PropertyName ?>View;
-		/** @var integer */
-		protected $int<?php echo $objReference->PropertyName ?>TabIdx;
 <?php
 		}
 	}
 ?>
 
-		public function __construct($objParentObject, $obj<?php echo $objTable->ClassName ?>Ref = null, $strControlId = null) {
+		/**
+		 * @param QControl|QForm $objParentObject
+		 * @param <?php echo $objTable->ClassName  ?> $obj<?php echo $objTable->ClassName ?>
+
+		 * @param string $strControlId
+		 * @throws QCallerException
+		 */
+		public function __construct($objParentObject, $obj<?php echo $objTable->ClassName ?> = null, $strControlId = null) {
 			// Call the Parent
 			try {
 				parent::__construct($objParentObject, $strControlId);
@@ -58,19 +66,23 @@
 				throw $objExc;
 			}
 			$this->AutoRenderChildren = true;
-			$this->Reload($obj<?php echo $objTable->ClassName ?>Ref);
+			$this->Reload($obj<?php echo $objTable->ClassName ?>);
 		}
 
-		public function Reload($obj<?php echo $objTable->ClassName ?>Ref = null) {
-			if ($this->tabs) {
-				$this->RemoveChildControl($this->tabs->ControlId, true);
+		/**
+		 * @param <?php echo $objTable->ClassName  ?> $obj<?php echo $objTable->ClassName ?>
+
+		 */
+		public function Reload($obj<?php echo $objTable->ClassName ?> = null) {
+			if ($this->ctlContainer) {
+				$this->RemoveChildControl($this->ctlContainer->ControlId, true);
+			} else {
+				$this->ctlContainer = $this->createContainer();
 			}
-			$this->tabs = new QTabs($this);
-			$headers = array();
-			$this->pnlMainView = new <?php echo $objTable->ClassName ?>ViewWithToolbar($this->tabs, $obj<?php echo $objTable->ClassName ?>Ref, true, true, true, false);
+			$this->strSubControlNames = array();
+			$this->add<?php echo $objTable->ClassName ?>Control($obj<?php echo $objTable->ClassName ?>);
 			$mct<?php echo $objTable->ClassName ?> = $this->pnlMainView->MetaControl;
 			$obj<?php echo $objTable->ClassName ?> = $mct<?php echo $objTable->ClassName ?> ? $mct<?php echo $objTable->ClassName ?>-><?php echo $objTable->ClassName ?> : null;
-			$headers[] = QApplication::Translate('<?php echo $objTable->ClassName ?>');
 
 <?php
 	if ($objTable->ColumnArray) foreach ($objTable->ColumnArray as $objColumn) {
@@ -78,22 +90,59 @@
 			$objReference = $objColumn->Reference;
 			$objReferencedTable = $this->GetTable($objReference->Table);
 ?>
-			if ($obj<?php echo $objTable->ClassName ?> && $obj<?php echo $objTable->ClassName ?>-><?php echo $objColumn->Reference->PropertyName ?> && $obj<?php echo $objTable->ClassName ?>-><?php echo $objColumn->Reference->PropertyName ?>->__Restored) {
-				$this->pnl<?php echo $objReference->PropertyName ?>View = new <?php echo $objReferencedTable->ClassName ?>ViewWithToolbar($this->tabs, $obj<?php echo $objTable->ClassName ?>-><?php echo $objColumn->Reference->PropertyName ?>, false, true, false, false);
-				$this->int<?php echo $objReference->PropertyName ?>TabIdx = count($headers);
-				$headers[] = QApplication::Translate('<?php echo $objReference->PropertyName ?>');
-			}
+			$this->add<?php echo $objColumn->Reference->PropertyName ?>Control($obj<?php echo $objTable->ClassName ?>);
 <?php
 		}
 	}
 ?>
-			$this->tabs->Headers = $headers;
+			$this->postProcessContainer();
 		}
+		
+
+		protected function postProcessContainer() {
+			$headers = array();
+			foreach ($this->strSubControlNames as $name) {
+				$headers[] = QApplication::Translate($name);
+			}
+			/** @var QTabs $objTabs */
+			$objTabs = QType::Cast($this->ctlContainer, 'QTabs');
+			$objTabs->Headers = $headers;
+		}
+
+		protected function createContainer() {
+			return new QTabs($this);
+		}
+
+		protected function add<?php echo $objTable->ClassName ?>Control($obj<?php echo $objTable->ClassName ?>) {
+			$this->pnlMainView = new <?php echo $objTable->ClassName ?>ViewWithToolbar($this->ctlContainer, $obj<?php echo $objTable->ClassName ?>, true, true, true, false);
+			$this->strSubControlNames[] = '<?php echo $objTable->ClassName ?>';
+		}
+
+<?php
+	if ($objTable->ColumnArray) foreach ($objTable->ColumnArray as $objColumn) {
+		if ($objColumn->Reference && !$objColumn->Reference->IsType) {
+			$objReference = $objColumn->Reference;
+			$objReferencedTable = $this->GetTable($objReference->Table);
+?>
+		/**
+		 * @param <?php echo $objTable->ClassName  ?> $obj<?php echo $objTable->ClassName ?>
+
+		 */
+		protected function add<?php echo $objColumn->Reference->PropertyName ?>Control($obj<?php echo $objTable->ClassName ?>) {
+			if ($obj<?php echo $objTable->ClassName ?> && $obj<?php echo $objTable->ClassName ?>-><?php echo $objColumn->Reference->PropertyName ?> && $obj<?php echo $objTable->ClassName ?>-><?php echo $objColumn->Reference->PropertyName ?>->__Restored) {
+				$this->pnl<?php echo $objReference->PropertyName ?>View = new <?php echo $objReferencedTable->ClassName ?>ViewWithToolbar($this->ctlContainer, $obj<?php echo $objTable->ClassName ?>-><?php echo $objColumn->Reference->PropertyName ?>, false, true, false, false);
+				$this->strSubControlNames[] = '<?php echo $objReference->PropertyName ?>';
+			}
+		}
+<?php
+		}
+	}
+?>
 
 		public function __get($strName) {
 			switch ($strName) {
 				case "Toolbar": return $this->pnlMainView->Toolbar;
-				case "Tabs": return $this->tabs;
+				case "Container": return $this->ctlContainer;
 				case "MainView":
 				case "<?php echo $objTable->ClassName ?>View": return $this->pnlMainView;
 <?php
