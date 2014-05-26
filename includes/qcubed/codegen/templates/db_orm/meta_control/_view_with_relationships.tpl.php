@@ -84,7 +84,15 @@
 			$this->add<?php echo $objTable->ClassName ?>Control($obj<?php echo $objTable->ClassName ?>);
 			$mct<?php echo $objTable->ClassName ?> = $this->pnlMainView->MetaControl;
 			$obj<?php echo $objTable->ClassName ?> = $mct<?php echo $objTable->ClassName ?> ? $mct<?php echo $objTable->ClassName ?>-><?php echo $objTable->ClassName ?> : null;
+			$this->addControlsForRelationships($obj<?php echo $objTable->ClassName ?>);
+			$this->postProcessContainer();
+		}
 
+		/**
+		 * @param <?php echo $objTable->ClassName  ?> $obj<?php echo $objTable->ClassName ?>
+
+		 */
+		protected function addControlsForRelationships($obj<?php echo $objTable->ClassName ?>) {
 <?php
 	if ($objTable->ColumnArray) foreach ($objTable->ColumnArray as $objColumn) {
 		if ($objColumn->Reference && !$objColumn->Reference->IsType) {
@@ -96,9 +104,7 @@
 		}
 	}
 ?>
-			$this->postProcessContainer();
 		}
-		
 
 		protected function postProcessContainer() {
 			$headers = array();
