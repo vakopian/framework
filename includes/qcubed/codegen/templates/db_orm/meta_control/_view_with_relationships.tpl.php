@@ -1,15 +1,52 @@
 <template OverwriteFlag="true" DocrootFlag="false" DirectorySuffix="" TargetDirectory="<?php echo __META_CONTROLS_GEN__ ?>" TargetFileName="<?php echo $objTable->ClassName ?>ViewWithRelationshipsGen.class.php"/>
+<?php
+	/** @var QTable $objTable */
+	/** @var QDatabaseCodeGen $this */
+?>
 <?php print("<?php\n"); ?>
 	require_once(__META_CONTROLS__ . '/<?php echo $objTable->ClassName ?>ViewWithToolbar.class.php');
 <?php
+	/** @var array $objReferenceArray */
+	$objReferenceArray = array();
+	/** @var QReverseReference[] $objCollectionsArray */
+	$objCollectionsArray = array();
+
 	if ($objTable->ColumnArray) foreach ($objTable->ColumnArray as $objColumn) {
 		if ($objColumn->Reference && !$objColumn->Reference->IsType) {
-			$objReference = $objColumn->Reference;
+			$objReferenceArray[$objColumn->Reference->PropertyName] = $objColumn->Reference;
+		}
+	}
+	if ($objTable->ReverseReferenceArray) foreach ($objTable->ReverseReferenceArray as $objReference) {
+		if ($objReference->Unique) {
+			$objReferenceArray[$objReference->ObjectPropertyName] = $objReference;
+		} else {
 			$objReferencedTable = $this->GetTable($objReference->Table);
+			$strPropertyName = $objReference->ObjectDescription;
+			if (strpos($strPropertyName, $objReferencedTable->ClassName.'As') === 0) {
+				$strPropertyName = substr($strPropertyName, strlen($objReferencedTable->ClassName) + 2);
+			}
+			$strPropertyName = $this->Pluralize($strPropertyName);
+
+			$objCollectionsArray[$strPropertyName] = $objReference;
+		}
+	}
+?>
+<?php
+	foreach ($objReferenceArray as $strPropertyName => $objReference) {
+		/** @var QReference|QReverseReference $objReference */
+		$objReferencedTable = $this->GetTable($objReference->Table);
 ?>
 	require_once(__META_CONTROLS__ . '/<?php echo $objReferencedTable->ClassName ?>ViewWithToolbar.class.php');
 <?php
-		}
+	}
+?>
+
+<?php
+	foreach ($objCollectionsArray as $strPropertyName => $objReference) {
+		$objReferencedTable = $this->GetTable($objReference->Table);
+?>
+	require_once(__META_CONTROLS__ . '/<?php echo $objReferencedTable->ClassName ?>CollectionPanel.class.php');
+<?php
 	}
 ?>
 
@@ -19,14 +56,20 @@
 	 * @property-read <?php echo $objTable->ClassName ?>ViewWithToolbar $MainView
 	 * @property-read <?php echo $objTable->ClassName ?>ViewWithToolbar $<?php echo $objTable->ClassName ?>View
 <?php
-	if ($objTable->ColumnArray) foreach ($objTable->ColumnArray as $objColumn) {
-		if ($objColumn->Reference && !$objColumn->Reference->IsType) {
-			$objReference = $objColumn->Reference;
-			$objReferencedTable = $this->GetTable($objReference->Table);
+	foreach ($objReferenceArray as $strPropertyName => $objReference) {
+		/** @var QReference|QReverseReference $objReference */
+		$objReferencedTable = $this->GetTable($objReference->Table);
 ?>
-	 * @property-read <?php echo $objReferencedTable->ClassName ?>ViewWithToolbar $<?php echo $objReference->PropertyName ?>View
+	 * @property-read <?php echo $objReferencedTable->ClassName ?>ViewWithToolbar $<?php echo $strPropertyName ?>View
 <?php
-		}
+	}
+?>
+<?php
+	foreach ($objCollectionsArray as $strPropertyName => $objReference) {
+		$objReferencedTable = $this->GetTable($objReference->Table);
+?>
+	 * @property-read <?php echo $objReferencedTable->ClassName ?>CollectionPanel $<?php echo $strPropertyName ?>Collection
+<?php
 	}
 ?>
 	 */
@@ -38,15 +81,22 @@
 		/** @var string[] */
 		protected $strSubControlNames;
 <?php
-	if ($objTable->ColumnArray) foreach ($objTable->ColumnArray as $objColumn) {
-		if ($objColumn->Reference && !$objColumn->Reference->IsType) {
-			$objReference = $objColumn->Reference;
-			$objReferencedTable = $this->GetTable($objReference->Table);
+	foreach ($objReferenceArray as $strPropertyName => $objReference) {
+		/** @var QReference|QReverseReference $objReference */
+		$objReferencedTable = $this->GetTable($objReference->Table);
 ?>
 		/** @var <?php echo $objReferencedTable->ClassName ?>ViewWithToolbar */
-		protected $pnl<?php echo $objReference->PropertyName ?>View;
+		protected $pnl<?php echo $strPropertyName ?>View;
 <?php
-		}
+	}
+?>
+<?php
+	foreach ($objCollectionsArray as $strPropertyName => $objReference) {
+		$objReferencedTable = $this->GetTable($objReference->Table);
+?>
+		/** @var <?php echo $objReferencedTable->ClassName ?>CollectionPanel */
+		protected $pnl<?php echo $strPropertyName ?>Collection;
+<?php
 	}
 ?>
 
@@ -94,14 +144,20 @@
 		 */
 		protected function addControlsForRelationships($obj<?php echo $objTable->ClassName ?>) {
 <?php
-	if ($objTable->ColumnArray) foreach ($objTable->ColumnArray as $objColumn) {
-		if ($objColumn->Reference && !$objColumn->Reference->IsType) {
-			$objReference = $objColumn->Reference;
-			$objReferencedTable = $this->GetTable($objReference->Table);
+	foreach ($objReferenceArray as $strPropertyName => $objReference) {
+		/** @var QReference|QReverseReference $objReference */
+		$objReferencedTable = $this->GetTable($objReference->Table);
 ?>
-			$this->add<?php echo $objColumn->Reference->PropertyName ?>Control($obj<?php echo $objTable->ClassName ?>);
+			$this->add<?php echo $strPropertyName ?>Control($obj<?php echo $objTable->ClassName ?>);
 <?php
-		}
+	}
+?>
+<?php
+	foreach ($objCollectionsArray as $strPropertyName => $objReference) {
+		$objReferencedTable = $this->GetTable($objReference->Table);
+?>
+			$this->add<?php echo $strPropertyName ?>CollectionControl($obj<?php echo $objTable->ClassName ?>);
+<?php
 	}
 ?>
 		}
@@ -126,23 +182,39 @@
 		}
 
 <?php
-	if ($objTable->ColumnArray) foreach ($objTable->ColumnArray as $objColumn) {
-		if ($objColumn->Reference && !$objColumn->Reference->IsType) {
-			$objReference = $objColumn->Reference;
-			$objReferencedTable = $this->GetTable($objReference->Table);
+	foreach ($objReferenceArray as $strPropertyName => $objReference) {
+		/** @var QReference|QReverseReference $objReference */
+		$objReferencedTable = $this->GetTable($objReference->Table);
 ?>
 		/**
 		 * @param <?php echo $objTable->ClassName  ?> $obj<?php echo $objTable->ClassName ?>
 
 		 */
-		protected function add<?php echo $objColumn->Reference->PropertyName ?>Control($obj<?php echo $objTable->ClassName ?>) {
-			if ($obj<?php echo $objTable->ClassName ?> && $obj<?php echo $objTable->ClassName ?>-><?php echo $objColumn->Reference->PropertyName ?> && $obj<?php echo $objTable->ClassName ?>-><?php echo $objColumn->Reference->PropertyName ?>->__Restored) {
-				$this->pnl<?php echo $objReference->PropertyName ?>View = new <?php echo $objReferencedTable->ClassName ?>ViewWithToolbar($this->ctlContainer, $obj<?php echo $objTable->ClassName ?>-><?php echo $objColumn->Reference->PropertyName ?>, false, true, false, false);
-				$this->strSubControlNames[] = '<?php echo $objReference->PropertyName ?>';
+		protected function add<?php echo $strPropertyName ?>Control($obj<?php echo $objTable->ClassName ?>) {
+			if ($obj<?php echo $objTable->ClassName ?> && $obj<?php echo $objTable->ClassName ?>-><?php echo $strPropertyName ?> && $obj<?php echo $objTable->ClassName ?>-><?php echo $strPropertyName ?>->__Restored) {
+				$this->pnl<?php echo $strPropertyName ?>View = new <?php echo $objReferencedTable->ClassName ?>ViewWithToolbar($this->ctlContainer, $obj<?php echo $objTable->ClassName ?>-><?php echo $strPropertyName ?>, false, true, false, false);
+				$this->strSubControlNames[] = '<?php echo $strPropertyName ?>';
 			}
 		}
 <?php
+	}
+?>
+<?php
+	foreach ($objCollectionsArray as $strPropertyName => $objReference) {
+		$objReferencedTable = $this->GetTable($objReference->Table);
+?>
+		/**
+		 * @param <?php echo $objTable->ClassName  ?> $obj<?php echo $objTable->ClassName ?>
+
+		 */
+		protected function add<?php echo $strPropertyName ?>CollectionControl($obj<?php echo $objTable->ClassName ?>) {
+			if ($obj<?php echo $objTable->ClassName ?>) {
+				$collection = $obj<?php echo $objTable->ClassName ?>->Get<?php echo $objReference->ObjectDescription ?>Array();
+				$this->pnl<?php echo $strPropertyName ?>Collection = new <?php echo $objReferencedTable->ClassName ?>CollectionPanel($this->ctlContainer, $collection, false, true, false, false);
+				$this->strSubControlNames[] = '<?php echo $strPropertyName ?>';
+			}
 		}
+<?php
 	}
 ?>
 
@@ -153,14 +225,17 @@
 				case "MainView":
 				case "<?php echo $objTable->ClassName ?>View": return $this->pnlMainView;
 <?php
-	if ($objTable->ColumnArray) foreach ($objTable->ColumnArray as $objColumn) {
-		if ($objColumn->Reference && !$objColumn->Reference->IsType) {
-			$objReference = $objColumn->Reference;
-			$objReferencedTable = $this->GetTable($objReference->Table);
+	foreach ($objReferenceArray as $strPropertyName => $objReference) {
 ?>
-				case "<?php echo $objReference->PropertyName ?>View": return $this->pnl<?php echo $objReference->PropertyName ?>View;
+				case "<?php echo $strPropertyName ?>View": return $this->pnl<?php echo $strPropertyName ?>View;
 <?php
-		}
+	}
+?>
+<?php
+	foreach ($objCollectionsArray as $strPropertyName => $objReference) {
+?>
+				case "<?php echo $strPropertyName ?>Collection": return $this->pnl<?php echo $strPropertyName ?>Collection;
+<?php
 	}
 ?>
 
